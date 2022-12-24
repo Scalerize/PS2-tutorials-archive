@@ -1,0 +1,10 @@
+How to create a PAL2NTSC code
+Credits to Mookie and Gokun for the original idea ;-)
+Load your game's ELF into PS2DIS.
+Go to function "sceGsResetGraph"
+Search for:
+00069403: sra s2, a2, 16
+Replace with:
+24120002: li s2, 2
+
+This method will not work with all games!

@@ -1,0 +1,12 @@
+How to create a Y-Fix code
+Credits to Leering7 for the original idea ;-)
+Load your game's ELF into PS2DIS.
+Go to function "sceGsSetDefDispEnv"
+Search for:
+26430032: addiu v1, s2, 0x0032
+Replace with:
+264300??: addiu v1, s2, 0x00??
+
+Search for 19, 48 and 24 and do the same.
+
+This method will not work with all games!

@@ -1,0 +1,34 @@
+Chapter 1: Creating a "skip videos" code - basic method
+Credits to CMX and bongsan for the original idea ;-)
+
+Load your game's ELF into PS2DIS.
+Search the hex string:
+4000838c0800e0030000628c
+The disassembler should jump to:
+sceMpegIsEnd:
+lw	v1, $0040(a0)	 :8c830040
+jr	ra		 :03e00008
+lw	v0, $0000(v1)	 :8c620000
+change the third line into:
+addiu 	v0, zero, $0001  :24020001
+Add a line into your patch file like this:
+//Skip Videos
+patch=0,EE,0xxxxxxx,word,24020001
+If you have a game that has more than one ELF - e.g. the demo disc PBPX_955.06 (comes with your PS2) - then you should load the game's ISO file into a hex editor.
+
+Search the hex string:
+4000838c0800e0030000628c
+and replace with:
+4000838c0800e00301000224
+You find that about a dozen times with demo disc PBPX_955.06
+
+This method will not work with all games!
+
+P.S.
+You can use this code also with your favorite cheat device and a real PS2.
+Make a code like this:
+Skip Videos
+2xxxxxxx 24020001
+You can use raw hex codes with Codebreaker, Xploder, X-Terminator and Madcatz Gameshark V3.
+Datel Action Replay and Interact Gameshark V1-V2 require the code to be encrypted.
+Don't ask me or anybody at pcsx2.net about that. Thanks in advance.
