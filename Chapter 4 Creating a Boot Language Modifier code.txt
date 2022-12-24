@@ -1,0 +1,54 @@
+Chapter 4: Creating a "Boot Language Modifier" code
+You might have already noticed that miscellaneous PAL games don't have a language select menu.
+If you have a japanese or american BIOS, then you are stuck with the english language.
+Therefore load your game's ELF into PS2DIS.
+Search for
+"JAL PatchIsNeeded"
+and/or
+"JAL SceScfGetLanguage".
+Most likely there is only one reference per game.
+Make a patch like this:
+//Boot Language Modifier (use only one of these)
+//Japanese
+//patch=0,EE,XXXXXXXX,word,24020000
+//English
+//patch=0,EE,XXXXXXXX,word,24020001
+//French
+//patch=0,EE,XXXXXXXX,word,24020002
+//Spanish
+//patch=0,EE,XXXXXXXX,word,24020003
+//German
+//patch=0,EE,XXXXXXXX,word,24020004
+//Italian
+//patch=0,EE,XXXXXXXX,word,24020005
+//Dutch
+//patch=0,EE,XXXXXXXX,word,24020006
+//Portuguese
+//patch=0,EE,XXXXXXXX,word,24020007
+Activate your favourite language by deleting the slashes.
+If you select a language that wasn't programmed into the game, it will fall back to english.
+
+
+P.S.
+You can use this code also with your favorite cheat device and a real PS2.
+Make a code like this:
+Boot Language Modifier (use only one of these):
+Japanese
+2XXXXXXX 24020000
+English
+2XXXXXXX 24020001
+French
+2XXXXXXX 24020002
+Spanish
+2XXXXXXX 24020003
+German
+2XXXXXXX 24020004
+Italian
+2XXXXXXX 24020005
+Dutch
+2XXXXXXX 24020006
+Portuguese
+2XXXXXXX 24020007
+You can use raw hex codes with Codebreaker, Xploder, X-Terminator and Madcatz Gameshark V3.
+Datel Action Replay and Interact Gameshark V1-V2 require the code to be encrypted.
+Don't ask me or anybody at pcsx2.net about that. Thanks in advance.

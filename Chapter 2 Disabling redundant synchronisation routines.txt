@@ -1,0 +1,88 @@
+Chapter 2: Disabling redundant synchronisation routines
+OK, here is my theory: as long as emulation speed is not exactly 100%, there is no need to synchronise anything.
+Actually these routines steal CPU time, best example is "Akira Psycho Ball" which runs twice as fast on a real PS2 without vertical sync.
+
+However not all games run better when disabling sth., you have to test that from case to case.
+
+So what are the most redundant routines:
+sceMcSync
+sceIpuSync
+sceGsSyncV
+sceDmaSyncN
+sceDmaSync
+sceDevVu1Sync
+sceDevVu0Sync
+sceDevVif1Sync
+sceDevVif0Sync
+sceDevGifSync
+sceCdSyncS
+sceCdSync
+sceSifSyncIop
+InvalidDCache | SyncDCache
+Search these routines in the "Edit/jump to labeled" menu of PS2DIS.
+If you don't find them, use "Analyzer/import labels from other file" (e.g. "Gauntlet" has all of these labels).
+
+Now you can shortcut the routine with:
+jr	ra		 :03e00008
+addiu 	v0, zero, $0001  :24020001
+or
+jr	ra		 :03e00008
+nop			 :00000000
+Even if you see no speed improvement disabling these routines has the advantage that you wont end there if you stop a game and enter the debugger of PCSX2.
+
+
+Here is an example for "Jak & Daxter PAL":
+When you boot the game you will notice the log window reading.
+Syncing... Syncing... Syncing...
+You wait and wait and wait and it still reads:
+Syncing... Syncing... Syncing...
+
+Load the ELF into PS2DIS and search for the textstring Syncing...
+You will find this:
+jal	sceSifSyncIop		# 00103390:0c04ab12
+nop				# 00103394:00000000
+beq	v0, zero, $001033a8	# 00103398:10400003
+nop				# 0010339c:00000000
+beq	zero, zero, $001033bc	# 001033a0:10000006
+nop				# 001033a4:00000000
+
+lui	a0, $0013		# 001033a8:3c040013
+jal	printf			# 001033ac:0c0470e6
+addiu	a0, a0, $3440		# 001033b0:24843440	a0="Syncing...\n"
+beq	zero, zero, $00103390	# 001033b4:1000fff6
+For some reason this game fails to execute "sceSifSyncIop" properly.
+As long as register V0=0 it will loop.
+Therefore use the patch that sets V0=1:
+//Disable "sceSifSyncIop"
+patch=0,EE,0012ac48,word,03E00008
+patch=0,EE,0012ac4c,word,24020001
+and game will continue.
+
+
+Here is an example for "Gradius 3 & 4 PAL SLES50038":
+If you boot the game with GSsoft, no problem.
+If you boot the game with GStaris, you get a black screen.
+Unlike other games it doesn't hang whilst checkin GS_CSR, but inside "VSync", which is part of "sceGsSyncV".
+Stop the game and enter debugger:
+VSync:						#
+lui		v1, $1000		# 0021a588:3c031000
+addiu		v0, zero, $0004		# 0021a58c:24020004
+ori		v1, v1, $f000		# 0021a590:3463f000	v1=I_STAT
+sw		v0, $0000(v1)		# 0021a594:ac620000	I_STAT
+lw		v0, $0000(v1)		# 0021a598:8c620000	v0=I_STAT
+andi		v0, v0, $0004		# 0021a59c:30420004
+nop					# 0021a5a0:00000000
+nop					# 0021a5a4:00000000
+nop					# 0021a5a8:00000000
+beq		v0, zero, $0021a598	# 0021a5ac:1040fffa	^ __0021a598
+addiu		v0, zero, $0004		# 0021a5b0:24020004
+sw		v0, $0000(v1)		# 0021a5b4:ac620000	I_STAT
+jr		ra			# 0021a5b8:03e00008
+For some reason the bit test of I_STAT ($1000F000) fails with GStaris, causing an infinite loop.
+Killing "sceGsSyncV" cures the problem.
+//Disable "sceGsSyncV" (Must be on with GStaris!)
+patch=0,EE,002327b8,word,03E00008
+patch=0,EE,002327bc,word,00000000
+At a special point it VSync is required, therefore it has to be reenabled there.
+patch=0,EE,0022fdcc,word,0c086962 //enforce VSync whilst picture fading
+This is an exception with this special game, usually disabling "sceGsSyncV" works fine.

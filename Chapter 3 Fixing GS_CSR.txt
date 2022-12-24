@@ -1,0 +1,24 @@
+Chapter 3: Fixing GS_CSR
+Download the demo "Jomommaz" from thethirdcreation.net
+copy all files into the host folder
+start the ELF with Gssoft - works fine
+start the ELF with Gsmax or Gstaris - you see a black screen with high frame rate
+stop the game and enter debugger
+it will read EPC=00100438 - scroll up a little
+0010042C 3C031200: lui	v1, 0x1200
+00100430 34631000: ori	v1, v1, 0x1000
+00100434 00000000: nop
+00100438 DC620000: ld	v0, 0x0000(v1)
+0010043C 30420008: andi	v0, v0, 0x0008
+00100440 1040FFFD: beq	v0, zero, 0x00100438
+The address $12001000 is the hardware register GS_CSR.
+For some reason the bit test at 0010043C fails, so that it loops infinitely.
+To break the loop you can either NOP the BEQ command or better change ANDI into ORI (just in case V0 is needed afterwards).
+0010043C 34420008: ori	v0, v0, 0x0008
+Therefore load JOMOMMAZ.ELF into your hex editor
+go to offset $043c and replace "08 00 42 30 " with "08 00 42 34"
+save as JOMOMMAZ-FIXED.ELF and try that with Gsmax or Gstaris
+voila!
+
+
+Go back to thethirdcreation.net and do the same with "CarShowroom".

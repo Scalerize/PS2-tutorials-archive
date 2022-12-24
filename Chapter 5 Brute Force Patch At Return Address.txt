@@ -1,0 +1,8 @@
+Chapter 5: Brute Force Patch At "Return Address"
+If you have loaded a game and there is no progress at some point, then stop the game and enter debugger.
+Remember the addresses PC (program counter) and RA (return address).
+Continue the game and stop it again.
+If the PC and RA are the same as before, then there must be sth. in the current routine that is not yet properly emulated.
+Subtract 8 from RA and check if it is a jump command. Most likely it should be.
+Quit emulator, make a patch that replaces the jump command with a NOP and restart the game.
+Maybe the game progresses further now, maybe not.
